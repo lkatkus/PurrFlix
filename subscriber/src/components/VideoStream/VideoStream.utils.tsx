@@ -7,6 +7,7 @@ export function isNewInitStream(dataView: DataView) {
     dataView.getUint8(6),
     dataView.getUint8(7)
   );
+
   const isNewInitStream = ftypBoxType === "ftyp";
 
   return isNewInitStream;

@@ -26,28 +26,59 @@ function App() {
     }
   };
 
-  if (!config) {
-    return (
-      <form
-        ref={formRef}
-        onSubmit={handleSubmit}
-        style={{ display: "flex", flexDirection: "column" }}
-      >
-        <input
-          required
-          type="text"
-          name="accessToken"
-          placeholder="Access token"
-        />
-        <input required type="text" name="serverUrl" placeholder="Server URL" />
-        <button type="submit">Connect</button>
-      </form>
-    );
-  }
+  const isReady = !!config;
 
   return (
-    <div>
-      <VideoStream connectionConfig={config} />
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        flexDirection: "column",
+        width: "100%",
+        height: "100%",
+      }}
+    >
+      <div>
+        <h1>PurrFlix</h1>
+      </div>
+
+      <div
+        style={{
+          flex: 1,
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {isReady ? (
+          <VideoStream connectionConfig={config} />
+        ) : (
+          <form
+            ref={formRef}
+            onSubmit={handleSubmit}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              width: 300,
+            }}
+          >
+            <input
+              required
+              type="text"
+              name="accessToken"
+              placeholder="Access token"
+            />
+            <input
+              required
+              type="text"
+              name="serverUrl"
+              placeholder="Server URL"
+            />
+            <button type="submit">Connect</button>
+          </form>
+        )}
+      </div>
     </div>
   );
 }

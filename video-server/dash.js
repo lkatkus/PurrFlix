@@ -6,6 +6,20 @@ const rimraf = require("rimraf");
 const assetsDir = path.join(__dirname, "assets");
 const outputBaseDir = path.join(__dirname, "public");
 
+console.log(`
+
+██████╗ ██╗   ██╗██████╗ ██████╗ ██████╗  █████╗ ██████╗ ███████╗███████╗██████╗ 
+██╔══██╗██║   ██║██╔══██╗██╔══██╗██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔════╝██╔══██╗
+██████╔╝██║   ██║██████╔╝██████╔╝██████╔╝███████║██████╔╝███████╗█████╗  ██████╔╝
+██╔═══╝ ██║   ██║██╔══██╗██╔══██╗██╔═══╝ ██╔══██║██╔══██╗╚════██║██╔══╝  ██╔══██╗
+██║     ╚██████╔╝██║  ██║██║  ██║██║     ██║  ██║██║  ██║███████║███████╗██║  ██║
+╚═╝      ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═╝
+                                                                                 
+`);
+
+console.log("Starting video parser");
+console.log("");
+
 // Set the desired segment duration in seconds
 const segmentDuration = 3;
 
@@ -43,9 +57,9 @@ fs.readdir(assetsDir, (err, files) => {
         );
         return;
       }
-      console.log(
-        `MPEG-DASH segments created for ${file}. Manifest saved to: ${outputDir}/video.mpd`
-      );
+
+      console.log(`MPEG-DASH segments created for ${file}`);
+      console.log("");
     });
   });
 });

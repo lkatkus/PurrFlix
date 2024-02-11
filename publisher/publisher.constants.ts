@@ -1,6 +1,26 @@
 import { createAppJwt } from "pubsub-js";
 
-export const SUBJECT = "laimonas.test.1";
+const dataSource = process.argv.slice(2)[0].split("=")[1];
+
+const CONFIG: {
+  [key: string]: {
+    subjectName: string;
+    src: string;
+  };
+} = {
+  cats: {
+    subjectName: "laimonas.test.1",
+    src: "../video-server/public/cats",
+  },
+  dogs: {
+    subjectName: "laimonas.test.2",
+    src: "../video-server/public/dogs",
+  },
+};
+
+export const SUBJECT = CONFIG[dataSource].subjectName;
+export const PATH_TO_VIDEOS = CONFIG[dataSource].src;
+
 export const NATS_BROKER_URL = process.env.NATS_BROKER_URL;
 export const PUBLISHER_ACCESS_TOKEN = process.env.PUBLISHER_ACCESS_TOKEN!;
 export const PUBLISHER_NATS_CREDS_FILE = `

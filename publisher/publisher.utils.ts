@@ -2,17 +2,12 @@ import { NatsService } from "pubsub-js";
 import { createInterface } from "readline";
 import fs from "fs";
 import path from "path";
-
-const PATH_TO_VIDEOS = "../video-server/public";
+import { PATH_TO_VIDEOS } from "./publisher.constants";
 
 export const generateVideoData = () => {
-  const publicDir = path.join(__dirname, PATH_TO_VIDEOS);
-
-  // Read subdirectories in ./public
-  const subdirectories = fs.readdirSync(publicDir);
-
-  // Create VIDEO_DATA array based on the subdirectory structure
   const videoData: string[][] = [];
+  const publicDir = path.join(__dirname, PATH_TO_VIDEOS);
+  const subdirectories = fs.readdirSync(publicDir);
 
   subdirectories.forEach((subdirectory: any) => {
     const subdirectoryPath = path.join(publicDir, subdirectory);
@@ -20,14 +15,9 @@ export const generateVideoData = () => {
     if (fs.statSync(subdirectoryPath).isDirectory()) {
       const files = fs.readdirSync(subdirectoryPath);
 
-      // Separate "init-" and "chunk-" files
       const initFiles = files.filter((file: any) => file.startsWith("init-"));
       const chunkFiles = files.filter((file: any) => file.startsWith("chunk-"));
-
-      // Sort "init-" files first, then "chunk-" files
       const sortedFiles = initFiles.concat(chunkFiles);
-
-      // Include only files starting with "init-" or "chunk-"
       const validFiles = sortedFiles.filter((file: any) =>
         /^init-|^chunk-/.test(file)
       );

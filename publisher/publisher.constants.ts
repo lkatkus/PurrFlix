@@ -9,11 +9,11 @@ const CONFIG: {
   };
 } = {
   cats: {
-    subjectName: "laimonas.test.1",
+    subjectName: "laimonas.purrflix-publisher.cats",
     src: "../video-server/public/cats",
   },
   dogs: {
-    subjectName: "laimonas.test.2",
+    subjectName: "laimonas.purrflix-publisher.dogs",
     src: "../video-server/public/dogs",
   },
 };

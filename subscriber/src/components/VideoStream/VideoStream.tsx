@@ -4,8 +4,8 @@ import { MIME_CODEC } from "./VideoStream.constants";
 import { connect } from "../../api";
 import { Connection, Subscription } from "../../api/types";
 
-const CATS_STREAM = "laimonas.test.1";
-const DOGS_STREAM = "laimonas.test.2";
+const CATS_STREAM = "laimonas.purrflix-publisher.cats";
+const DOGS_STREAM = "laimonas.purrflix-publisher.dogs";
 
 interface VideoStreamProps {
   connectionConfig: {

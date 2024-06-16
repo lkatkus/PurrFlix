@@ -8,9 +8,9 @@ import HomePage from "./pages/Home.vue";
 import VideoPage from "./pages/Video.vue";
 
 const routes: RouteRecordSingleView[] = [
-  { path: "/", component: HomePage },
+  { path: "/PurrFlix/", component: HomePage },
   {
-    path: "/video",
+    path: "/PurrFlix/video",
     component: VideoPage,
     meta: {
       requiresAuth: true,

@@ -35,7 +35,7 @@ export default {
 
       userStore.setUserData(payload);
 
-      router.push("/video");
+      router.push("/PurrFlix/video");
     };
 
     return {

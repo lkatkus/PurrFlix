@@ -23,6 +23,12 @@ const LIVE_SERVICE_SUBJECT_NAME = "laimonas.purrflix-publisher.live"
 var ASSETS_FOLDER []DataSource = []DataSource{
 	{subjectName: "laimonas.purrflix-publisher.cats", src: "../video-server/public/cats"},
 	{subjectName: "laimonas.purrflix-publisher.dogs", src: "../video-server/public/dogs"},
+	{subjectName: "laimonas.purrflix-publisher.birds", src: "../video-server/public/dogs"},
+	{subjectName: "laimonas.purrflix-publisher.reptiles", src: "../video-server/public/dogs"},
+	{subjectName: "laimonas.purrflix-publisher.horses", src: "../video-server/public/dogs"},
+	{subjectName: "laimonas.purrflix-publisher.fishes", src: "../video-server/public/dogs"},
+	{subjectName: "laimonas.purrflix-publisher.spiders", src: "../video-server/public/dogs"},
+	{subjectName: "laimonas.purrflix-publisher.rocks", src: "../video-server/public/dogs"},
 }
 
 func main() {

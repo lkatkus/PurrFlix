@@ -27,10 +27,10 @@ router.beforeEach(function (to, _from, next) {
   const userStore = useUserStore();
 
   if (
-    to.path === "/video" &&
+    to.path.includes("/video") &&
     (!userStore.getAccessToken || !userStore.getServerUrl)
   ) {
-    next("/");
+    next("/PurrFlix/");
   } else {
     next();
   }

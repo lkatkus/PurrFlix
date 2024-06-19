@@ -11,19 +11,30 @@ export default {
 <template>
   <base-page-container>
     <div class="contentContainer">
-      <h1>PurrFlix</h1>
-      <login-form></login-form>
+      <div class="formWrapper">
+        <login-form></login-form>
+      </div>
     </div>
   </base-page-container>
 </template>
 
 <style scoped>
 .contentContainer {
+  height: 100%;
   width: 100%;
-  max-width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
 }
 
-h1 {
-  text-align: center;
+.formWrapper {
+  width: 90%;
+}
+
+@media (min-width: 600px) {
+  .formWrapper {
+    width: 50%;
+  }
 }
 </style>

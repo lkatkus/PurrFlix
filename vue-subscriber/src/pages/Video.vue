@@ -11,13 +11,6 @@ import {
 } from "../utils/videoUtils";
 import SideBar from "../containers/SideBar.vue";
 
-// const CATS_STREAM = "laimonas.purrflix-publisher.cats";
-// const DOGS_STREAM = "laimonas.purrflix-publisher.dogs";
-// const STREAM_OPTIONS = [
-//   { text: "Cats", value: CATS_STREAM },
-//   { text: "Dogs", value: DOGS_STREAM },
-// ];
-
 export default {
   components: {
     SideBar,
@@ -26,7 +19,6 @@ export default {
     const videoRef = ref<HTMLVideoElement | null>(null);
     const connectionRef = ref<any>(null);
     const sourceRef = ref<any>(null);
-    // const channel = ref<any>(CATS_STREAM);
     const userStore = useUserStore();
     const { getAccessToken: accessToken, getServerUrl: serverUrl } =
       storeToRefs(userStore);
@@ -92,67 +84,25 @@ export default {
       }
     };
 
-    // onMounted(async () => {
-    //   const videoEl = videoRef.value;
-    //   if (!!videoEl && serverUrl.value && accessToken.value) {
-    //     try {
-    //       connectionRef.value = await connect({
-    //         url: serverUrl.value,
-    //         accessToken: accessToken.value,
-    //       });
-    //       connectionRef.value.subscribe({
-    //         subject: CATS_STREAM,
-    //         onError: handleOnError,
-    //         onMessages: handleOnMessage,
-    //       });
-    //     } catch (e) {
-    //       console.log(e);
-    //     }
-    //   }
-    // });
-
     watch(activeStream, (newValue: any) => {
       if (newValue) {
         handleActiveStreamChange(newValue.subjectName);
       }
     });
 
-    // watch(channel, async (newValue) => {
-    //   if (newValue) {
-    //     handleActiveStreamChange(newValue);
-    //   }
-    // });
-
     return {
       videoRef,
       activeStream,
-      // channel,
-      // options: STREAM_OPTIONS,
     };
   },
 };
 </script>
 
 <template>
-  <div class="pageContainer">
-    <div class="pageHeaderContainer">
-      <div class="pageHeaderContentContainer">
-        <h1>PurrFlix</h1>
-      </div>
-    </div>
-
+  <base-page-container>
     <div class="pageContentContainer">
       <div class="mainContent">
-        <!-- <div class="inputContainer">
-          <label for="currentChannel">Pick a channel</label>
-          <select id="currentChannel" v-model="channel">
-            <option v-for="option in options" :value="option.value">
-              {{ option.text }}
-            </option>
-          </select>
-        </div> -->
-
-        <div>
+        <div class="videoPlayerContainer">
           <video
             ref="videoRef"
             class="videoPlayer"
@@ -162,7 +112,7 @@ export default {
           ></video>
         </div>
 
-        <div>
+        <div class="description descriptionDesktop">
           <div v-if="activeStream">
             <h3>{{ activeStream.subjectName }}</h3>
             <div>{{ activeStream }}</div>
@@ -172,78 +122,98 @@ export default {
       </div>
 
       <div class="sideContent">
-        <side-bar></side-bar>
+        <div class="description descriptionMobile">
+          <div v-if="activeStream">
+            <h3>{{ activeStream.subjectName }}</h3>
+            <div>{{ activeStream }}</div>
+          </div>
+          <h2 v-else>Pick a stream from the list of live streams</h2>
+        </div>
+
+        <div class="listContainer">
+          <side-bar></side-bar>
+        </div>
       </div>
     </div>
-  </div>
+  </base-page-container>
 </template>
 
 <style scoped>
-h1 {
-  margin: 8px 0;
-}
-
-.inputContainer {
-  display: flex;
-  flex-direction: column;
-}
-
-.inputContainer > label {
-  margin-bottom: 8px;
-}
-
-.pageContainer {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  background-color: cyan;
-}
-
-.pageHeaderContainer {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  background-color: red;
-}
-
-.pageHeaderContentContainer {
-  width: 100%;
-  background-color: salmon;
-  width: 100%;
-  max-width: 1440px;
-}
-
 .pageContentContainer {
-  overflow-y: auto;
+  background-color: lime;
+  /* overflow-y: auto; */
   display: grid;
-  background-color: skyblue;
   width: 100%;
   height: 100%;
   max-width: 1440px;
-  column-gap: 16px;
   grid-template-columns: 1fr;
+  grid-template-rows: min-content 1fr;
 }
 
 .mainContent {
   background-color: silver;
 }
 
+.videoPlayerContainer {
+  display: flex;
+}
+
 .videoPlayer {
   width: 100%;
+  object-fit: cover;
   aspect-ratio: 16 / 9;
 }
 
 .sideContent {
-  overflow-y: auto;
-  background-color: gold;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-@media (min-width: 600px) {
+.listContainer {
+  overflow-y: auto;
+}
+
+.description {
+  background-color: yellow;
+}
+
+@media (orientation: portrait) {
   .pageContentContainer {
-    background-color: orange;
+    background-color: green;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .descriptionDesktop {
+    display: none;
+  }
+}
+
+@media (orientation: landscape) {
+  .pageContentContainer {
+    background-color: red;
     grid-template-columns: 8fr 4fr;
+    grid-template-rows: 1fr;
+  }
+
+  .descriptionDesktop {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .pageContentContainer {
+      grid-template-columns: 8fr 4fr;
+      grid-template-rows: 1fr;
+    }
+
+    .descriptionMobile {
+      display: none;
+    }
+
+    .descriptionDesktop {
+      display: unset;
+    }
   }
 }
 </style>

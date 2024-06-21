@@ -100,119 +100,89 @@ export default {
 
 <template>
   <base-page-container>
-    <div class="pageContentContainer">
-      <div class="mainContent">
-        <div class="videoPlayerContainer">
-          <video
-            ref="videoRef"
-            class="videoPlayer"
-            muted
-            autoPlay
-            controls
-          ></video>
-        </div>
-
-        <div class="description descriptionDesktop">
-          <div v-if="activeStream">
-            <h3>{{ activeStream.subjectName }}</h3>
-            <div>{{ activeStream }}</div>
-          </div>
-          <h2 v-else>Pick a stream from the list of live streams</h2>
-        </div>
+    <div class="mainContentContainer">
+      <div class="videoPlayerContainer">
+        <video
+          ref="videoRef"
+          class="videoPlayer"
+          muted
+          autoPlay
+          controls
+        ></video>
       </div>
 
-      <div class="sideContent">
-        <div class="description descriptionMobile">
-          <div v-if="activeStream">
-            <h3>{{ activeStream.subjectName }}</h3>
-            <div>{{ activeStream }}</div>
-          </div>
-          <h2 v-else>Pick a stream from the list of live streams</h2>
+      <div class="descriptionContainer">
+        <div v-if="activeStream">
+          <h3>{{ activeStream.subjectName }}</h3>
+          <div>{{ activeStream }}</div>
         </div>
+        <h2 v-else>Pick a stream from the list of live streams</h2>
+      </div>
 
-        <div class="listContainer">
-          <side-bar></side-bar>
-        </div>
+      <div class="streamListContainer">
+        <side-bar></side-bar>
       </div>
     </div>
   </base-page-container>
 </template>
 
 <style scoped>
-.pageContentContainer {
-  background-color: lime;
-  /* overflow-y: auto; */
+.mainContentContainer {
+  background-color: cyan;
   display: grid;
-  width: 100%;
   height: 100%;
-  max-width: 1440px;
-  grid-template-columns: 1fr;
-  grid-template-rows: min-content 1fr;
-}
-
-.mainContent {
-  background-color: silver;
+  grid-template-rows: min-content min-content 1fr;
 }
 
 .videoPlayerContainer {
+  background-color: red;
+  height: 100%;
+  aspect-ratio: 16/9;
   display: flex;
 }
 
 .videoPlayer {
   width: 100%;
-  object-fit: cover;
-  aspect-ratio: 16 / 9;
+  height: 100%;
 }
 
-.sideContent {
-  overflow-y: hidden;
-  display: flex;
-  flex-direction: column;
+.descriptionContainer {
+  background-color: green;
 }
 
-.listContainer {
-  overflow-y: auto;
-}
-
-.description {
+.streamListContainer {
   background-color: yellow;
 }
 
 @media (orientation: portrait) {
-  .pageContentContainer {
-    background-color: green;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .descriptionDesktop {
-    display: none;
-  }
 }
 
 @media (orientation: landscape) {
-  .pageContentContainer {
-    background-color: red;
-    grid-template-columns: 8fr 4fr;
-    grid-template-rows: 1fr;
-  }
+  @media (min-aspect-ratio: 8/5) {
+    .mainContentContainer {
+      grid-template-rows: min-content 1fr;
+      grid-template-columns: 1fr 1fr;
+    }
 
-  .descriptionDesktop {
-    display: none;
+    .videoPlayerContainer {
+      grid-row-start: 1;
+      grid-row-end: 3;
+    }
   }
 
   @media (min-width: 1024px) {
-    .pageContentContainer {
-      grid-template-columns: 8fr 4fr;
-      grid-template-rows: 1fr;
+    .mainContentContainer {
+      grid-template-rows: min-content 1fr;
+      grid-template-columns: 2fr 1fr;
     }
 
-    .descriptionMobile {
-      display: none;
+    .videoPlayerContainer {
+      grid-row: 1;
     }
 
-    .descriptionDesktop {
-      display: unset;
+    .streamListContainer {
+      grid-row-start: 1;
+      grid-row-end: 3;
     }
   }
 }

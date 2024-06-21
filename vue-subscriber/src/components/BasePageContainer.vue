@@ -2,7 +2,9 @@
   <div class="pageContainer">
     <div class="pageHeaderContainer">
       <div class="pageHeaderContentContainer">
-        <h1>PurrFlix</h1>
+        <router-link to="/PurrFlix/">
+          <h1>PurrFlix</h1>
+        </router-link>
       </div>
     </div>
 

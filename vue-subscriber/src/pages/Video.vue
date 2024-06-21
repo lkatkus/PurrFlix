@@ -1,5 +1,5 @@
 <script lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, onBeforeUnmount } from "vue";
 import { storeToRefs } from "pinia";
 import { connect } from "../api";
 import { useUserStore } from "../stores/userStore";
@@ -90,6 +90,12 @@ export default {
       }
     });
 
+    onBeforeUnmount(() => {
+      if (connectionRef.value) {
+        connectionRef.value.disconnect();
+      }
+    });
+
     return {
       videoRef,
       activeStream,
@@ -116,7 +122,7 @@ export default {
           <h3>{{ activeStream.subjectName }}</h3>
           <div>{{ activeStream }}</div>
         </div>
-        <h2 v-else>Pick a stream from the list of live streams</h2>
+        <h3 v-else>Pick a stream from the list of live streams to start</h3>
       </div>
 
       <div class="streamListContainer">

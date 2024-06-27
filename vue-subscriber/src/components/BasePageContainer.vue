@@ -5,6 +5,12 @@
         <router-link to="/PurrFlix/">
           <h1>PurrFlix</h1>
         </router-link>
+
+        <nav>
+          <a target="_blank" href="https://github.com/lkatkus/PurrFlix"
+            >github</a
+          >
+        </nav>
       </div>
     </div>
 
@@ -33,6 +39,7 @@ h4 {
   display: flex;
   align-items: center;
   flex-direction: column;
+  --page-content-width: 1200px;
 }
 
 .pageHeaderContainer {
@@ -45,7 +52,10 @@ h4 {
 .pageHeaderContentContainer {
   background-color: salmon;
   width: 100%;
-  max-width: 1440px;
+  max-width: var(--page-content-width);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .pageFooterContainer {
@@ -57,7 +67,7 @@ h4 {
 
 .pageFooterContentContainer {
   width: 100%;
-  max-width: 1440px;
+  max-width: var(--page-content-width);
 }
 
 .pageContentContainer {
@@ -65,6 +75,6 @@ h4 {
   overflow-y: auto;
   width: 100%;
   height: 100%;
-  max-width: 1440px;
+  max-width: var(--page-content-width);
 }
 </style>

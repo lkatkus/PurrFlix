@@ -1,104 +1,26 @@
 <script lang="ts">
-import { ref, watch, onBeforeUnmount } from "vue";
+import { ref, watch } from "vue";
 import { storeToRefs } from "pinia";
-import { connect } from "../api";
-import { useUserStore } from "../stores/userStore";
 import { useStreamStore } from "../stores/streamStore";
-import {
-  isNewInitStream,
-  initMediaSource,
-  MIME_CODEC,
-} from "../utils/videoUtils";
-import SideBar from "../containers/SideBar.vue";
+import VideoFeed from "../containers/VideoFeed.vue";
+import VideoPlayer from "../containers/VideoPlayer.vue";
 
 export default {
   components: {
-    SideBar,
+    VideoFeed,
+    VideoPlayer,
   },
   setup() {
-    const videoRef = ref<HTMLVideoElement | null>(null);
-    const connectionRef = ref<any>(null);
-    const sourceRef = ref<any>(null);
-    const userStore = useUserStore();
-    const { getAccessToken: accessToken, getServerUrl: serverUrl } =
-      storeToRefs(userStore);
     const streamStore = useStreamStore();
     const { getActiveStream: activeStream } = storeToRefs(streamStore);
-
-    const handleOnError = () => {
-      console.log("handleOnError");
-    };
-
-    const handleOnMessage = async (messages: any[]) => {
-      const message = messages[0];
-      const arrayBuffer = message.data;
-
-      const dataView = new DataView(arrayBuffer);
-      const isNew = isNewInitStream(dataView);
-
-      if (isNew) {
-        if (!MediaSource.isTypeSupported(MIME_CODEC)) {
-          throw new Error("Unsupported mime codec");
-        }
-
-        if (videoRef.value === null) {
-          return;
-        }
-
-        const mediaSource = await initMediaSource((sb: SourceBuffer) => {
-          sourceRef.value = sb;
-
-          sb.appendBuffer(arrayBuffer);
-        });
-
-        videoRef.value.src = URL.createObjectURL(mediaSource);
-      } else {
-        const sourceBuffer = sourceRef.value;
-
-        if (sourceBuffer) {
-          sourceBuffer.appendBuffer(arrayBuffer);
-        }
-      }
-    };
-
-    const handleActiveStreamChange = async (newActiveStream: string) => {
-      const videoEl = videoRef.value;
-
-      if (!!videoEl && serverUrl.value && accessToken.value) {
-        connectionRef.value && connectionRef.value.disconnect();
-
-        try {
-          connectionRef.value = await connect({
-            url: serverUrl.value,
-            accessToken: accessToken.value,
-          });
-
-          connectionRef.value.subscribe({
-            subject: newActiveStream,
-            onError: handleOnError,
-            onMessages: handleOnMessage,
-          });
-        } catch (e) {
-          console.log(e);
-        }
-      }
-    };
+    const currentActiveStream = ref<any>(null);
 
     watch(activeStream, (newValue: any) => {
-      if (newValue) {
-        handleActiveStreamChange(newValue.subjectName);
-      }
-    });
-
-    onBeforeUnmount(() => {
-      if (connectionRef.value) {
-        connectionRef.value.disconnect();
-      }
+      currentActiveStream.value = newValue;
     });
 
     return {
-      videoRef,
-      activeStream,
+      currentActiveStream,
     };
   },
 };
@@ -108,25 +30,19 @@ export default {
   <base-page-container>
     <div class="mainContentContainer">
       <div class="videoPlayerContainer">
-        <video
-          ref="videoRef"
-          class="videoPlayer"
-          muted
-          autoPlay
-          controls
-        ></video>
+        <video-player></video-player>
       </div>
 
       <div class="descriptionContainer">
-        <div v-if="activeStream">
-          <h3>{{ activeStream.subjectName }}</h3>
-          <div>{{ activeStream }}</div>
+        <div v-if="currentActiveStream">
+          <h3>{{ currentActiveStream.subjectName }}</h3>
+          <div>{{ currentActiveStream }}</div>
         </div>
         <h3 v-else>Pick a stream from the list of live streams to start</h3>
       </div>
 
       <div class="streamListContainer">
-        <side-bar></side-bar>
+        <video-feed></video-feed>
       </div>
     </div>
   </base-page-container>
@@ -145,11 +61,6 @@ export default {
   height: 100%;
   aspect-ratio: 16/9;
   display: flex;
-}
-
-.videoPlayer {
-  width: 100%;
-  height: 100%;
 }
 
 .descriptionContainer {

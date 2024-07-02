@@ -1,15 +1,16 @@
 <script lang="ts">
 import { onMounted, ref } from "vue";
 import { storeToRefs } from "pinia";
-import { connect } from "../api";
 import { useUserStore } from "../stores/userStore";
 import { useStreamStore } from "../stores/streamStore";
 import { getObjectFromBuffer } from "../utils/dataUtils.ts";
+import NatsWorker from "../workers/natsWorker?worker";
 
 const LIVE_STREAMS = "laimonas.purrflix-publisher.live";
 
 export default {
   setup() {
+    const feedWorker = new NatsWorker();
     const liveStreams = ref<any[]>([]);
     const streamStore = useStreamStore();
     const userStore = useUserStore();
@@ -18,10 +19,6 @@ export default {
 
     const handleOnClickItem = (stream: any) => {
       streamStore.setActiveStream(stream);
-    };
-
-    const handleOnError = () => {
-      console.log("handleOnError");
     };
 
     const handleOnMessage = async (messages: any[]) => {
@@ -40,18 +37,25 @@ export default {
       }
     };
 
+    feedWorker.onmessage = function (e) {
+      handleOnMessage(e.data.messages);
+    };
+
+    const handleConnect = () => {
+      const message = {
+        type: "subscribe",
+        url: serverUrl.value,
+        subject: LIVE_STREAMS,
+        accessToken: accessToken.value,
+      };
+
+      feedWorker.postMessage(message);
+    };
+
     onMounted(async () => {
       if (serverUrl.value && accessToken.value) {
         try {
-          const connection = await connect({
-            url: serverUrl.value,
-            accessToken: accessToken.value,
-          });
-          connection.subscribe({
-            subject: LIVE_STREAMS,
-            onError: handleOnError,
-            onMessages: handleOnMessage,
-          });
+          handleConnect();
         } catch (e) {
           console.log(e);
         }

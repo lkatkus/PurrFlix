@@ -1,5 +1,5 @@
 <script lang="ts">
-import { onMounted, ref } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "../stores/userStore";
 import { useStreamStore } from "../stores/streamStore";
@@ -62,6 +62,15 @@ export default {
       }
     });
 
+    onBeforeUnmount(() => {
+      const message = {
+        type: "unsubscribe",
+        subject: LIVE_STREAMS,
+      };
+
+      feedWorker.postMessage(message);
+    });
+
     return {
       liveStreams,
       handleOnClickItem,
@@ -74,6 +83,7 @@ export default {
   <div>
     <div>
       <h3>Active streams</h3>
+      <div v-if="liveStreams.length === 0">Awaiting stream data</div>
     </div>
 
     <div class="listContainer">
@@ -90,11 +100,6 @@ export default {
 </template>
 
 <style scoped>
-h3,
-h4 {
-  margin: 6px 0;
-}
-
 .listContainer {
   display: grid;
   row-gap: 16px;

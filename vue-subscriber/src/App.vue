@@ -3,10 +3,12 @@
 </template>
 
 <style>
+@import url("https://fonts.googleapis.com/css2?family=Grand+Hotel&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap");
 
 * {
   box-sizing: border-box;
+  --page-content-width: 1200px;
 }
 
 html,
@@ -25,5 +27,12 @@ body > #app {
   height: 100%;
   display: flex;
   flex-direction: column;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 8px 0;
 }
 </style>

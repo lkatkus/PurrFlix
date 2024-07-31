@@ -1,5 +1,5 @@
 <script lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { storeToRefs } from "pinia";
 import { useStreamStore } from "../stores/streamStore";
 import VideoFeed from "../containers/VideoFeed.vue";
@@ -15,8 +15,36 @@ export default {
     const { getActiveStream: activeStream } = storeToRefs(streamStore);
     const currentActiveStream = ref<any>(null);
 
+    const observer = new IntersectionObserver(
+      () => {
+        const target = document.querySelector("#videoPlayerRow");
+
+        if (target && !target.getAttribute("data-is-observed")) {
+          target.setAttribute("data-is-observed", "true");
+        } else if (target) {
+          const target = document.querySelector("#videoPlayerRowContainer");
+          const isSticky = target?.classList.contains("sticky");
+
+          if (isSticky) {
+            target?.classList.remove("sticky");
+          } else {
+            target?.classList.add("sticky");
+          }
+        }
+      },
+      {
+        threshold: 0,
+        rootMargin: "-200px",
+        root: document.querySelector("#mainContentContainer"),
+      }
+    );
+
     watch(activeStream, (newValue: any) => {
       currentActiveStream.value = newValue;
+    });
+
+    onMounted(() => {
+      observer.observe(document.querySelector("#videoPlayerRow")!);
     });
 
     return {
@@ -29,20 +57,33 @@ export default {
 <template>
   <base-page-container>
     <div class="mainContentContainer">
-      <div class="videoPlayerContainer">
-        <video-player></video-player>
-      </div>
-
-      <div class="descriptionContainer">
-        <div v-if="currentActiveStream">
-          <h3>{{ currentActiveStream.subjectName }}</h3>
-          <div>{{ currentActiveStream }}</div>
+      <div id="videoPlayerRow" class="videoPlayerRow">
+        <div id="videoPlayerRowContainer" class="videoPlayerRowContainer">
+          <div class="videoPlayerContainer">
+            <div class="videoPlayerWrapper">
+              <video-player></video-player>
+            </div>
+          </div>
         </div>
-        <h3 v-else>Pick a stream from the list of live streams to start</h3>
       </div>
 
-      <div class="streamListContainer">
-        <video-feed></video-feed>
+      <div class="videoInfoRow">
+        <div class="videoInfoRowContent">
+          <div class="videoInfoContainer">
+            <div v-if="currentActiveStream">
+              <h3>{{ currentActiveStream.subjectName }}</h3>
+              <div>{{ currentActiveStream }}</div>
+            </div>
+            <div v-else>
+              <h3>Current stream information</h3>
+              <div>Pick a stream from the list of active streams to start</div>
+            </div>
+          </div>
+
+          <div class="streamListContainer">
+            <video-feed></video-feed>
+          </div>
+        </div>
       </div>
     </div>
   </base-page-container>
@@ -50,57 +91,91 @@ export default {
 
 <style scoped>
 .mainContentContainer {
-  background-color: cyan;
-  display: grid;
   height: 100%;
-  grid-template-rows: min-content min-content 1fr;
+  display: grid;
+  grid-template-rows: min-content 1fr;
+}
+
+.videoPlayerRow {
+  grid-row: 1;
+  height: 216px;
+  display: flex;
+  justify-content: center;
+  background-color: black;
+}
+
+.videoPlayerRowContainer {
+  width: 100%;
+  height: 216px;
+  display: flex;
+  justify-content: center;
+}
+
+.sticky {
+  position: fixed;
+  height: 140px !important;
+  max-width: unset;
+  background-color: black;
 }
 
 .videoPlayerContainer {
-  background-color: red;
-  height: 100%;
-  aspect-ratio: 16/9;
+  width: 100%;
   display: flex;
+  justify-content: center;
+  max-width: var(--page-content-width);
 }
 
-.descriptionContainer {
-  background-color: green;
+.sticky > .videoPlayerContainer {
+  justify-content: unset;
+}
+
+.videoPlayerWrapper {
+  height: 100%;
+  aspect-ratio: 16/9;
+}
+
+.videoInfoRow {
+  grid-row: 2;
+  min-height: 480px;
+  display: flex;
+  justify-content: center;
+}
+
+.videoInfoRowContent {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+  column-gap: 16px;
+  max-width: var(--page-content-width);
+}
+
+.videoInfoContainer {
+  padding: 16px;
 }
 
 .streamListContainer {
-  background-color: yellow;
+  padding: 16px;
 }
 
-@media (orientation: portrait) {
+@media (min-width: 768px) {
+  .videoInfoRowContent {
+    display: grid;
+    grid-template-columns: 4fr 3fr;
+    max-width: var(--page-content-width);
+  }
 }
 
-@media (orientation: landscape) {
-  @media (min-aspect-ratio: 8/5) {
-    .mainContentContainer {
-      grid-template-rows: min-content 1fr;
-      grid-template-columns: 1fr 1fr;
-    }
-
-    .videoPlayerContainer {
-      grid-row-start: 1;
-      grid-row-end: 3;
-    }
+@media (min-width: 1024px) {
+  .videoInfoRowContent {
+    grid-template-columns: 5fr 4fr;
   }
 
-  @media (min-width: 1024px) {
-    .mainContentContainer {
-      grid-template-rows: min-content 1fr;
-      grid-template-columns: 2fr 1fr;
-    }
+  .videoPlayerRow {
+    height: 560px;
+  }
 
-    .videoPlayerContainer {
-      grid-row: 1;
-    }
-
-    .streamListContainer {
-      grid-row-start: 1;
-      grid-row-end: 3;
-    }
+  .videoPlayerRowContainer {
+    height: 560px;
   }
 }
 </style>

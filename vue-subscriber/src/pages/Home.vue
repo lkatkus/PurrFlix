@@ -70,6 +70,7 @@ export default {
 
 .formContainer {
   width: 90%;
+  margin: 64px 0;
 }
 
 .baseLoginContainer {

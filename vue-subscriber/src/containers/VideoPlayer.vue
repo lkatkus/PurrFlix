@@ -1,5 +1,5 @@
 <script lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, onBeforeUnmount } from "vue";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "../stores/userStore";
 import { useStreamStore } from "../stores/streamStore";
@@ -12,7 +12,7 @@ import NatsWorker from "../workers/natsWorker?worker";
 
 export default {
   setup() {
-    const feedWorker = new NatsWorker();
+    const videoWorker = new NatsWorker();
     const videoRef = ref<HTMLVideoElement | null>(null);
     const sourceRef = ref<any>(null);
     const userStore = useUserStore();
@@ -61,10 +61,10 @@ export default {
         accessToken: accessToken.value,
       };
 
-      feedWorker.postMessage(message);
+      videoWorker.postMessage(message);
     };
 
-    feedWorker.onmessage = function (e) {
+    videoWorker.onmessage = function (e) {
       handleOnMessage(e.data.messages);
     };
 
@@ -87,12 +87,21 @@ export default {
           subject: oldValue.subjectName,
         };
 
-        feedWorker.postMessage(message);
+        videoWorker.postMessage(message);
       }
 
       if (newValue) {
         handleActiveStreamChange(newValue.subjectName);
       }
+    });
+
+    onBeforeUnmount(() => {
+      const message = {
+        type: "unsubscribe",
+        subject: activeStream.value.subjectName,
+      };
+
+      videoWorker.postMessage(message);
     });
 
     return {

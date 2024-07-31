@@ -63,6 +63,10 @@ export default {
             <div class="videoPlayerWrapper">
               <video-player></video-player>
             </div>
+            <div v-if="currentActiveStream" class="videoDescriptionContainer">
+              <h3>{{ currentActiveStream.subjectName }}</h3>
+              <div>{{ currentActiveStream.name }}</div>
+            </div>
           </div>
         </div>
       </div>
@@ -125,8 +129,25 @@ export default {
   max-width: var(--page-content-width);
 }
 
+.videoDescriptionContainer {
+  display: none;
+  overflow: hidden;
+}
+
+.videoDescriptionContainer > * {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .sticky > .videoPlayerContainer {
   justify-content: unset;
+}
+
+.sticky > .videoPlayerContainer > .videoDescriptionContainer {
+  color: white;
+  display: unset;
+  padding: 16px;
 }
 
 .videoPlayerWrapper {

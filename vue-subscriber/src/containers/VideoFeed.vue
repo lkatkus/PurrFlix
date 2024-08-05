@@ -92,8 +92,15 @@ export default {
         v-on:click="handleOnClickItem(stream)"
         v-for="stream in liveStreams"
       >
-        <h4>{{ stream.subjectName }}</h4>
-        <div>{{ stream }}</div>
+        <div class="listItemThumbnail">
+          <div>{{ stream.duration }}</div>
+        </div>
+        <div class="listItemDescription">
+          <h4>{{ stream.subjectName }}</h4>
+          <div>
+            <div>{{ stream.name }}</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -106,7 +113,41 @@ export default {
 }
 
 .listItem {
+  overflow: hidden;
+  cursor: pointer;
   padding: 8px;
-  background-color: red;
+
+  display: grid;
+  column-gap: 16px;
+  grid-template-columns: min-content 1fr;
+  border-radius: 16px;
+}
+
+.listItem:hover {
+  background-color: #f6f6f6;
+}
+
+.listItemThumbnail {
+  border-radius: 12px;
+  padding: 8px;
+  width: 100px;
+  height: 100px;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+
+  background-color: #d0d0d0;
+}
+
+.listItemDescription {
+  word-break: break-all;
+}
+
+@media (min-width: 768px) {
+  .fullWidthStreamList .listItemThumbnail {
+    width: 300px;
+    height: 200px;
+  }
 }
 </style>

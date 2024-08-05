@@ -112,7 +112,15 @@ export default {
 </script>
 
 <template>
-  <video ref="videoRef" class="videoPlayer" muted autoPlay controls></video>
+  <!-- @vue-ignore -->
+  <video
+    ref="videoRef"
+    class="videoPlayer"
+    v-bind:muted.attr="''"
+    autoPlay
+    playsinline
+    controls
+  ></video>
 </template>
 
 <style scoped>

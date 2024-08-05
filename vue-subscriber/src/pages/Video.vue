@@ -1,5 +1,5 @@
 <script lang="ts">
-import { ref, watch, onMounted } from "vue";
+import { ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useStreamStore } from "../stores/streamStore";
 import VideoFeed from "../containers/VideoFeed.vue";
@@ -13,6 +13,7 @@ export default {
   setup() {
     const streamStore = useStreamStore();
     const { getActiveStream: activeStream } = storeToRefs(streamStore);
+    const isObserving = ref(false);
     const currentActiveStream = ref<any>(null);
 
     const observer = new IntersectionObserver(
@@ -41,10 +42,12 @@ export default {
 
     watch(activeStream, (newValue: any) => {
       currentActiveStream.value = newValue;
-    });
 
-    onMounted(() => {
-      observer.observe(document.querySelector("#videoPlayerRow")!);
+      if (!isObserving.value) {
+        isObserving.value = true;
+
+        observer.observe(document.querySelector("#videoPlayerRow")!);
+      }
     });
 
     return {
@@ -57,7 +60,11 @@ export default {
 <template>
   <base-page-container>
     <div class="mainContentContainer">
-      <div id="videoPlayerRow" class="videoPlayerRow">
+      <div
+        id="videoPlayerRow"
+        class="videoPlayerRow"
+        v-bind:class="{ hidden: !currentActiveStream }"
+      >
         <div id="videoPlayerRowContainer" class="videoPlayerRowContainer">
           <div class="videoPlayerContainer">
             <div class="videoPlayerWrapper">
@@ -73,18 +80,17 @@ export default {
 
       <div class="videoInfoRow">
         <div class="videoInfoRowContent">
-          <div class="videoInfoContainer">
-            <div v-if="currentActiveStream">
+          <div v-if="currentActiveStream" class="videoInfoContainer">
+            <div>
               <h3>{{ currentActiveStream.subjectName }}</h3>
               <div>{{ currentActiveStream }}</div>
             </div>
-            <div v-else>
-              <h3>Current stream information</h3>
-              <div>Pick a stream from the list of active streams to start</div>
-            </div>
           </div>
 
-          <div class="streamListContainer">
+          <div
+            class="streamListContainer"
+            v-bind:class="{ fullWidthStreamList: !currentActiveStream }"
+          >
             <video-feed></video-feed>
           </div>
         </div>
@@ -102,6 +108,7 @@ export default {
 
 .videoPlayerRow {
   grid-row: 1;
+  overflow: hidden;
   height: 216px;
   display: flex;
   justify-content: center;
@@ -116,6 +123,7 @@ export default {
 }
 
 .sticky {
+  top: 0;
   position: fixed;
   height: 140px !important;
   max-width: unset;
@@ -176,6 +184,15 @@ export default {
 
 .streamListContainer {
   padding: 16px;
+}
+
+.fullWidthStreamList {
+  grid-column-start: 1;
+  grid-column-end: 3;
+}
+
+.hidden {
+  display: none;
 }
 
 @media (min-width: 768px) {

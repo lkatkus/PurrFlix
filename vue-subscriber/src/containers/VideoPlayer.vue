@@ -116,9 +116,9 @@ export default {
   <video
     ref="videoRef"
     class="videoPlayer"
-    v-bind:muted.attr="''"
-    autoPlay
     playsinline
+    autoplay
+    v-bind:muted.attr="''"
     controls
   ></video>
 </template>

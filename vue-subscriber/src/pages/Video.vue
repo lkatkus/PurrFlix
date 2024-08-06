@@ -17,11 +17,17 @@ export default {
     const currentActiveStream = ref<any>(null);
 
     const observer = new IntersectionObserver(
-      () => {
+      (entries) => {
         const target = document.querySelector("#videoPlayerRow");
 
         if (target && !target.getAttribute("data-is-observed")) {
           target.setAttribute("data-is-observed", "true");
+
+          if (!(entries[0] as any).isIntersecting) {
+            const target = document.querySelector("#videoPlayerRowContainer");
+
+            target?.classList.add("sticky");
+          }
         } else if (target) {
           const target = document.querySelector("#videoPlayerRowContainer");
           const isSticky = target?.classList.contains("sticky");
@@ -35,7 +41,7 @@ export default {
       },
       {
         threshold: 0,
-        rootMargin: "-200px",
+        rootMargin: "-180px", // -200px does not work on iOS for some reason
         root: document.querySelector("#mainContentContainer"),
       }
     );
@@ -123,7 +129,6 @@ export default {
 }
 
 .sticky {
-  top: 0;
   position: fixed;
   height: 140px !important;
   max-width: unset;

@@ -29,6 +29,7 @@ var ASSETS_FOLDER []DataSource = []DataSource{
 	{subjectName: "laimonas.purrflix-publisher.fishes", src: "../video-server/public/fishes"},
 	{subjectName: "laimonas.purrflix-publisher.spiders", src: "../video-server/public/spiders"},
 	{subjectName: "laimonas.purrflix-publisher.rocks", src: "../video-server/public/rocks"},
+	{subjectName: "laimonas.purrflix-publisher.debug", src: "../video-server/public/debug"},
 }
 
 func main() {

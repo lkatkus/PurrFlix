@@ -1,7 +1,9 @@
 package datahandlers
 
 import (
+	"bytes"
 	"context"
+	"encoding/binary"
 	"encoding/json"
 	"log"
 	"os"
@@ -20,11 +22,35 @@ type DataMetadata struct {
 	Thumbnail   string `json:"thumbnail"`
 }
 
+type DataSource struct {
+	Init   []byte `json:"init"`
+	Source []byte `json:"source"`
+}
+
+type DataSourceTx struct {
+	Init   string `json:"init"`
+	Source string `json:"source"`
+}
+
 type DataMessage struct {
 	SubjectName string
 	DataType    string
-	Data        []byte
+	Data        DataSource
 	Metadata    DataMetadata
+}
+
+func joinWithLengthPrefixes(a, b []byte) []byte {
+	buffer := new(bytes.Buffer)
+
+	lengthA := uint32(len(a))
+	binary.Write(buffer, binary.BigEndian, lengthA)
+	buffer.Write(a)
+
+	lengthB := uint32(len(b))
+	binary.Write(buffer, binary.BigEndian, lengthB)
+	buffer.Write(b)
+
+	return buffer.Bytes()
 }
 
 func ReadFolder(dirPath string, onFileRead func(DataMessage), root bool) {
@@ -38,6 +64,8 @@ func ReadFolder(dirPath string, onFileRead func(DataMessage), root bool) {
 			return strings.HasPrefix(entries[i].Name(), "init-") || entries[i].Name() < entries[j].Name()
 		})
 	}
+
+	var initData []byte
 
 	for i, e := range entries {
 		var entryName = e.Name()
@@ -56,18 +84,23 @@ func ReadFolder(dirPath string, onFileRead func(DataMessage), root bool) {
 				var dataType string
 				var timeOffset time.Duration
 
-				if i > 0 {
+				if i == 0 {
+					initData = data
+					dataType = "init"
+					timeOffset = 0
+				} else {
 					dataType = "data"
 					timeOffset = 3000
-				} else {
-					dataType = "init"
-					timeOffset = 100
 				}
 
 				log.Println(entryName)
 
 				onFileRead(DataMessage{
-					DataType: dataType, Data: data,
+					DataType: dataType,
+					Data: DataSource{
+						Init:   initData,
+						Source: data,
+					},
 					Metadata: DataMetadata{
 						Name:      dirPath,
 						Duration:  9000,
@@ -114,8 +147,10 @@ func DataPublisher(ch <-chan DataMessage, ctx context.Context, connection *pubsu
 			} else {
 				nats.PublishData(ctx, connection, liveServiceSubjectName, jsonData)
 			}
-		}
+		} else {
+			chunkData := joinWithLengthPrefixes(data.Data.Init, data.Data.Source)
 
-		nats.PublishData(ctx, connection, data.SubjectName, data.Data)
+			nats.PublishData(ctx, connection, data.SubjectName, chunkData)
+		}
 	}
 }

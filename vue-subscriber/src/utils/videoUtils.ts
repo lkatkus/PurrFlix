@@ -22,6 +22,7 @@ export const initMediaSource = async (onReady: (sb: SourceBuffer) => void) => {
 
     try {
       sourceBuffer = mediaSource.addSourceBuffer(MIME_CODEC);
+      sourceBuffer.mode = "sequence";
 
       onReady(sourceBuffer);
 

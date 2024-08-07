@@ -103,7 +103,7 @@ export default {
           const sourceBuffer = sourceRef.value;
 
           sourceBuffer.appendBuffer(dataBuffer);
-        }, 10);
+        }, 100);
       } else {
         const sourceBuffer = sourceRef.value;
 

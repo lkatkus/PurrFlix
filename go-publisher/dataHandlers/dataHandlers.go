@@ -18,6 +18,7 @@ import (
 type DataMetadata struct {
 	SubjectName string `json:"subjectName"`
 	Name        string `json:"name"`
+	Description string `json:"description"`
 	Duration    int    `json:"duration"`
 	Thumbnail   string `json:"thumbnail"`
 }
@@ -34,7 +35,6 @@ type DataSourceTx struct {
 
 type DataMessage struct {
 	SubjectName string
-	DataType    string
 	Data        DataSource
 	Metadata    DataMetadata
 }
@@ -81,34 +81,27 @@ func ReadFolder(dirPath string, onFileRead func(DataMessage), root bool) {
 					log.Fatalf("Failed to read file: %v", err)
 				}
 
-				var dataType string
-				var timeOffset time.Duration
+				var timeOffset time.Duration = 3000
 
 				if i == 0 {
 					initData = data
-					dataType = "init"
-					timeOffset = 0
 				} else {
-					dataType = "data"
-					timeOffset = 3000
+					log.Println(entryName)
+
+					onFileRead(DataMessage{
+						Data: DataSource{
+							Init:   initData,
+							Source: data,
+						},
+						Metadata: DataMetadata{
+							Name:        dirPath,
+							Description: "Some relevant description",
+							Duration:    9000,
+							Thumbnail:   "",
+						},
+					})
+					time.Sleep(timeOffset * time.Millisecond)
 				}
-
-				log.Println(entryName)
-
-				onFileRead(DataMessage{
-					DataType: dataType,
-					Data: DataSource{
-						Init:   initData,
-						Source: data,
-					},
-					Metadata: DataMetadata{
-						Name:      dirPath,
-						Duration:  9000,
-						Thumbnail: "",
-					},
-				})
-
-				time.Sleep(timeOffset * time.Millisecond)
 			}
 		}
 	}
@@ -122,7 +115,6 @@ func DataReader(ch chan<- DataMessage, rootSubjectName string, src string) {
 	handleFileRead := func(src DataMessage) {
 		data := DataMessage{
 			SubjectName: rootSubjectName,
-			DataType:    src.DataType,
 			Data:        src.Data,
 			Metadata:    src.Metadata,
 		}
@@ -135,22 +127,21 @@ func DataReader(ch chan<- DataMessage, rootSubjectName string, src string) {
 
 func DataPublisher(ch <-chan DataMessage, ctx context.Context, connection *pubsub.NatsService, liveServiceSubjectName string) {
 	for data := range ch {
-		if data.DataType == "init" {
-			jsonData, err := json.Marshal(DataMetadata{
-				SubjectName: data.SubjectName,
-				Name:        data.Metadata.Name,
-				Duration:    data.Metadata.Duration,
-				Thumbnail:   data.Metadata.Thumbnail,
-			})
-			if err != nil {
-				log.Fatalf("Error marshaling struct: %v", err)
-			} else {
-				nats.PublishData(ctx, connection, liveServiceSubjectName, jsonData)
-			}
+		jsonData, err := json.Marshal(DataMetadata{
+			SubjectName: data.SubjectName,
+			Name:        data.Metadata.Name,
+			Description: data.Metadata.Description,
+			Duration:    data.Metadata.Duration,
+			Thumbnail:   data.Metadata.Thumbnail,
+		})
+		if err != nil {
+			log.Fatalf("Error marshaling struct: %v", err)
 		} else {
-			chunkData := joinWithLengthPrefixes(data.Data.Init, data.Data.Source)
-
-			nats.PublishData(ctx, connection, data.SubjectName, chunkData)
+			nats.PublishData(ctx, connection, liveServiceSubjectName, jsonData)
 		}
+
+		chunkData := joinWithLengthPrefixes(data.Data.Init, data.Data.Source)
+
+		nats.PublishData(ctx, connection, data.SubjectName, chunkData)
 	}
 }

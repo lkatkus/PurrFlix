@@ -13,9 +13,23 @@ export const isNewInitStream = (dataView: DataView) => {
   return isNewInitStream;
 };
 
+export const getMediaSource = () => {
+  if (window.MediaSource) {
+    return window.MediaSource;
+  }
+
+  if ((window as any).ManagedMediaSource) {
+    return (window as any).ManagedMediaSource;
+  }
+
+  throw Error("No MediaSource API available");
+};
+
 export const initMediaSource = async (onReady: (sb: SourceBuffer) => void) => {
   let sourceBuffer: SourceBuffer;
-  const mediaSource = new MediaSource();
+
+  const mediaSourceObj = getMediaSource();
+  const mediaSource = new mediaSourceObj();
 
   mediaSource.addEventListener("sourceopen", () => {
     console.log("sourceopen"); // eslint-disable-line no-console

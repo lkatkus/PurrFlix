@@ -3,7 +3,11 @@ import { ref, watch, onBeforeUnmount } from "vue";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "../stores/userStore";
 import { useStreamStore } from "../stores/streamStore";
-import { initMediaSource, MIME_CODEC } from "../utils/videoUtils";
+import {
+  initMediaSource,
+  MIME_CODEC,
+  getMediaSource,
+} from "../utils/videoUtils";
 import NatsWorker from "../workers/natsWorker?worker";
 
 function splitWithLengthPrefixes(data: ArrayBuffer, lengthSize = 4) {
@@ -81,7 +85,7 @@ export default {
       );
 
       if (!isNewInit) {
-        if (!MediaSource.isTypeSupported(MIME_CODEC)) {
+        if (!getMediaSource().isTypeSupported(MIME_CODEC)) {
           throw new Error("Unsupported mime codec");
         }
 

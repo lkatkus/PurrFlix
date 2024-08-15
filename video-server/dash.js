@@ -21,6 +21,8 @@ console.log("Starting video parser");
 console.log("");
 
 const segmentDuration = 3;
+const thumbnailWidth = 320;
+const thumbnailHeight = 180;
 
 rimraf.sync(outputBaseDir);
 fs.mkdirSync(outputBaseDir);
@@ -46,17 +48,43 @@ fs.readdir(assetsRootDir, (err, dirs) => {
           fs.mkdirSync(outputDir, { recursive: true });
         }
 
-        const command = `ffmpeg -i ${inputFilePath} -c:v libx264 -x264opts keyint=60 -b:v 1500k -c:a aac -b:a 128k -f dash -seg_duration ${segmentDuration} -an ${outputDir}/video.mpd`;
-        exec(command, (error, stdout, stderr) => {
-          if (error) {
-            console.error(
-              `Error creating MPEG-DASH segments for ${file}: ${error.message}`
+        const ffmpegCommand = `ffmpeg -i ${inputFilePath} \
+          -map 0:v -c:v libx264 -x264opts keyint=60 -b:v 1500k -f dash -seg_duration ${segmentDuration} -an ${outputDir}/video.mpd \
+          -map 0:v -ss 00:00:01 -vframes 1 -vf scale=${thumbnailWidth}:${thumbnailHeight} -f image2pipe -vcodec png -`;
+
+        exec(
+          ffmpegCommand,
+          { encoding: "buffer", maxBuffer: 1024 * 1024 * 10 },
+          (error, stdout, stderr) => {
+            if (error) {
+              console.error(`Error processing file: ${error.message}`);
+              return;
+            }
+
+            const base64Image = `data:image/png;base64,${stdout.toString(
+              "base64"
+            )}`;
+
+            const jsonObject = {
+              thumbnail: base64Image,
+            };
+
+            fs.writeFile(
+              `${outputDir}/metadata.json`,
+              JSON.stringify(jsonObject, null, 2),
+              (err) => {
+                if (err) {
+                  console.error(`Error writing to JSON file: ${err.message}`);
+                  return;
+                }
+              }
             );
-            return;
+
+            console.log(
+              `MPEG-DASH segments created and screenshot captured for ${inputFilePath}`
+            );
           }
-          console.log(`MPEG-DASH segments created for ${file}`);
-          console.log("");
-        });
+        );
       });
     });
   });

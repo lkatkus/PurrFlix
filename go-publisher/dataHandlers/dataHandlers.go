@@ -61,13 +61,17 @@ func ReadFolder(dirPath string, onFileRead func(DataMessage), root bool) {
 
 	if !root {
 		sort.Slice(entries, func(i, j int) bool {
-			return strings.HasPrefix(entries[i].Name(), "init-") || entries[i].Name() < entries[j].Name()
+			var currentEntryName = entries[i].Name()
+			var nextEntryName = entries[j].Name()
+
+			return strings.HasSuffix(currentEntryName, ".json") || strings.HasPrefix(currentEntryName, "init-") || currentEntryName < nextEntryName
 		})
 	}
 
 	var initData []byte
+	var metadataData DataMetadata
 
-	for i, e := range entries {
+	for _, e := range entries {
 		var entryName = e.Name()
 		s := []string{dirPath, entryName}
 		var entryPath = strings.Join(s, "/")
@@ -83,7 +87,7 @@ func ReadFolder(dirPath string, onFileRead func(DataMessage), root bool) {
 
 				var timeOffset time.Duration = 3000
 
-				if i == 0 {
+				if strings.HasPrefix(entryName, "init-") {
 					initData = data
 				} else {
 					log.Println(entryName)
@@ -93,14 +97,25 @@ func ReadFolder(dirPath string, onFileRead func(DataMessage), root bool) {
 							Init:   initData,
 							Source: data,
 						},
-						Metadata: DataMetadata{
-							Name:        dirPath,
-							Description: "Some relevant description",
-							Duration:    9000,
-							Thumbnail:   "",
-						},
+						Metadata: metadataData,
 					})
 					time.Sleep(timeOffset * time.Millisecond)
+				}
+			} else if strings.HasSuffix(entryName, ".json") {
+				data, err := os.ReadFile(entryPath)
+				if err != nil {
+					log.Fatalf("Failed to read file: %v", err)
+				}
+
+				var jsonData DataMetadata
+
+				json.Unmarshal(data, &jsonData)
+
+				metadataData = DataMetadata{
+					Name:        dirPath,
+					Description: "Some relevant description",
+					Duration:    9000,
+					Thumbnail:   jsonData.Thumbnail,
 				}
 			}
 		}

@@ -93,12 +93,14 @@ export default {
         v-for="stream in liveStreams"
       >
         <div class="listItemThumbnail">
+          <img v-bind:src="stream.thumbnail" />
           <div>{{ stream.duration }}</div>
         </div>
         <div class="listItemDescription">
           <h4>{{ stream.subjectName }}</h4>
           <div>
             <div>{{ stream.name }}</div>
+            <div>{{ stream.description }}</div>
           </div>
         </div>
       </div>
@@ -129,15 +131,29 @@ export default {
 
 .listItemThumbnail {
   border-radius: 12px;
-  padding: 8px;
   width: 100px;
   height: 100px;
 
+  position: relative;
   display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: center;
 
   background-color: #d0d0d0;
+  overflow: hidden;
+}
+
+.listItemThumbnail > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.listItemThumbnail > div {
+  color: white;
+  position: absolute;
+  bottom: 8px;
+  right: 16px;
 }
 
 .listItemDescription {

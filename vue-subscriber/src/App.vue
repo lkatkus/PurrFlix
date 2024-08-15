@@ -9,6 +9,7 @@
 * {
   box-sizing: border-box;
   --page-content-width: 1200px;
+  --z-index-top: 9000;
 }
 
 html,

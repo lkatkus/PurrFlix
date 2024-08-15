@@ -87,10 +87,8 @@ export default {
       <div class="videoInfoRow">
         <div class="videoInfoRowContent">
           <div v-if="currentActiveStream" class="videoInfoContainer">
-            <div>
-              <h3>{{ currentActiveStream.subjectName }}</h3>
-              <div>{{ currentActiveStream }}</div>
-            </div>
+            <h3>{{ currentActiveStream.subjectName }}</h3>
+            <div>{{ currentActiveStream.description }}</div>
           </div>
 
           <div
@@ -129,6 +127,7 @@ export default {
 }
 
 .sticky {
+  z-index: var(--z-index-top);
   position: fixed;
   height: 140px !important;
   max-width: unset;

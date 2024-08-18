@@ -11,7 +11,7 @@ const LIVE_STREAMS = "laimonas.purrflix-publisher.live";
 
 export default {
   setup() {
-    const feedWorker = new NatsWorker();
+    const feedWorker = new NatsWorker({ name: "VideoFeedWorker" });
     const liveStreams = ref<any[]>([]);
     const streamStore = useStreamStore();
     const userStore = useUserStore();

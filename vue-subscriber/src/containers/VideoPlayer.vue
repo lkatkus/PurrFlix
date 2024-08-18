@@ -1,67 +1,19 @@
 <script lang="ts">
-import { ref, watch, onBeforeUnmount } from "vue";
+import { ref, watch, onBeforeUnmount, onMounted } from "vue";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "../stores/userStore";
 import { useStreamStore } from "../stores/streamStore";
-import {
-  initMediaSource,
-  MIME_CODEC,
-  getMediaSource,
-} from "../utils/videoUtils";
+import { initMediaSource } from "../utils/videoUtils";
 import NatsWorker from "../workers/natsWorker?worker";
-
-function splitWithLengthPrefixes(data: ArrayBuffer, lengthSize = 4) {
-  const uint8Array = new Uint8Array(data);
-  const chunks = [];
-  const view = new DataView(data);
-
-  let offset = 0;
-
-  while (offset < uint8Array.length) {
-    // Read the length of the next segment
-    if (offset + lengthSize > uint8Array.length) {
-      throw new Error("Unexpected end of data while reading length prefix.");
-    }
-    const length = view.getUint32(offset);
-    offset += lengthSize;
-
-    // Extract the segment based on the length
-    if (offset + length > uint8Array.length) {
-      throw new Error("Unexpected end of data while reading segment.");
-    }
-    const segment = uint8Array.slice(offset, offset + length);
-    chunks.push(segment);
-
-    // Move to the next segment
-    offset += length;
-  }
-
-  return chunks;
-}
-
-function compareArrayBuffers(a: ArrayBuffer, b: ArrayBuffer) {
-  // Convert ArrayBuffers to Uint8Arrays
-  const view1 = new Uint8Array(a);
-  const view2 = new Uint8Array(b);
-
-  // Check if they are the same length
-  if (view1.byteLength !== view2.byteLength) {
-    return false;
-  }
-
-  // Compare byte-by-byte
-  for (let i = 0; i < view1.byteLength; i++) {
-    if (view1[i] !== view2[i]) {
-      return false;
-    }
-  }
-
-  return true;
-}
+import {
+  compareArrayBuffers,
+  concatArrayBuffers,
+  splitWithLengthPrefixes,
+} from "../utils/dataUtils";
 
 export default {
   setup() {
-    const videoWorker = new NatsWorker();
+    const videoWorker = new NatsWorker({ name: "VideoPlayerWorker" });
     const videoRef = ref<HTMLVideoElement | null>(null);
     const sourceRef = ref<any>(null);
     const loadingRef = ref<any>(false);
@@ -80,37 +32,23 @@ export default {
       const initBuffer = chunks[0].buffer;
       const dataBuffer = chunks[1].buffer;
 
-      const isNewInit = compareArrayBuffers(
+      const isSameInit = compareArrayBuffers(
         currentInitBuffer.value,
         initBuffer
       );
 
-      loadingRef.value = false;
-
-      if (!isNewInit) {
-        if (!getMediaSource().isTypeSupported(MIME_CODEC)) {
-          throw new Error("Unsupported mime codec");
-        }
-
-        if (videoRef.value === null) {
-          return;
-        }
-
+      if (!isSameInit) {
         currentInitBuffer.value = initBuffer;
 
-        const mediaSource = await initMediaSource((sb: SourceBuffer) => {
-          sourceRef.value = sb;
+        const sourceBuffer = sourceRef.value;
 
-          sb.appendBuffer(initBuffer);
-        });
+        if (sourceBuffer) {
+          const initialArrayBuffer = concatArrayBuffers(initBuffer, dataBuffer);
 
-        videoRef.value.src = URL.createObjectURL(mediaSource);
+          sourceBuffer.appendBuffer(initialArrayBuffer);
+        }
 
-        setTimeout(() => {
-          const sourceBuffer = sourceRef.value;
-
-          sourceBuffer.appendBuffer(dataBuffer);
-        }, 100);
+        loadingRef.value = false;
       } else {
         const sourceBuffer = sourceRef.value;
 
@@ -118,6 +56,10 @@ export default {
           sourceBuffer.appendBuffer(dataBuffer);
         }
       }
+    };
+
+    videoWorker.onmessage = function (e) {
+      handleOnMessage(e.data.messages);
     };
 
     const handleConnect = (subjectName: string) => {
@@ -131,10 +73,6 @@ export default {
       videoWorker.postMessage(message);
     };
 
-    videoWorker.onmessage = function (e) {
-      handleOnMessage(e.data.messages);
-    };
-
     const handleActiveStreamChange = async (newActiveStream: string) => {
       const videoEl = videoRef.value;
 
@@ -144,6 +82,16 @@ export default {
         } catch (e) {
           console.log(e);
         }
+      }
+    };
+
+    const handleCreateMediaSource = async () => {
+      if (videoRef.value) {
+        const mediaSource = await initMediaSource((sb: SourceBuffer) => {
+          sourceRef.value = sb;
+        });
+
+        videoRef.value.src = URL.createObjectURL(mediaSource);
       }
     };
 
@@ -164,13 +112,19 @@ export default {
       }
     });
 
-    onBeforeUnmount(() => {
-      const message = {
-        type: "unsubscribe",
-        subject: activeStream.value.subjectName,
-      };
+    onMounted(() => {
+      handleCreateMediaSource();
+    });
 
-      videoWorker.postMessage(message);
+    onBeforeUnmount(() => {
+      if (activeStream.value) {
+        const message = {
+          type: "unsubscribe",
+          subject: activeStream.value.subjectName,
+        };
+
+        videoWorker.postMessage(message);
+      }
     });
 
     return {
@@ -190,7 +144,7 @@ export default {
       playsinline
       autoplay
       v-bind:muted.attr="''"
-      controls
+      disableRemotePlayback
     ></video>
     <div
       id="videoPlayerLoader"

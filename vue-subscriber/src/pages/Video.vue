@@ -73,9 +73,7 @@ export default {
       >
         <div id="videoPlayerRowContainer" class="videoPlayerRowContainer">
           <div class="videoPlayerContainer">
-            <div class="videoPlayerWrapper">
-              <video-player></video-player>
-            </div>
+            <video-player></video-player>
             <div v-if="currentActiveStream" class="videoDescriptionContainer">
               <h3>{{ currentActiveStream.name }}</h3>
               <div>{{ currentActiveStream.subjectName }}</div>
@@ -138,6 +136,7 @@ export default {
 .videoPlayerContainer {
   width: 100%;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   max-width: var(--page-content-width);
 }
@@ -155,6 +154,7 @@ export default {
 
 .sticky > .videoPlayerContainer {
   justify-content: unset;
+  flex-direction: row;
 }
 
 .sticky > .videoPlayerContainer > .videoDescriptionContainer {

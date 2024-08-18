@@ -32,7 +32,7 @@ export const initMediaSource = async (onReady: (sb: SourceBuffer) => void) => {
   const mediaSource = new mediaSourceObj();
 
   mediaSource.addEventListener("sourceopen", () => {
-    console.log("sourceopen"); // eslint-disable-line no-console
+    // console.log("sourceopen"); // eslint-disable-line no-console
 
     try {
       sourceBuffer = mediaSource.addSourceBuffer(MIME_CODEC);
@@ -41,15 +41,15 @@ export const initMediaSource = async (onReady: (sb: SourceBuffer) => void) => {
       onReady(sourceBuffer);
 
       sourceBuffer.addEventListener("updatestart", () => {
-        console.log("sourceBuffer.updatestart");
+        // console.log("sourceBuffer.updatestart");
       });
 
       sourceBuffer.addEventListener("updateend", () => {
-        console.log("sourceBuffer.updateend");
+        // console.log("sourceBuffer.updateend");
       });
 
-      sourceBuffer.addEventListener("error", (e) => {
-        console.log("sourceBuffer.error", e);
+      sourceBuffer.addEventListener("error", () => {
+        // console.log("sourceBuffer.error", e);
       });
     } catch (error) {
       console.error("Error creating source buffer:", error);

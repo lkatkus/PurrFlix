@@ -163,11 +163,6 @@ export default {
   padding: 16px;
 }
 
-.videoPlayerWrapper {
-  height: 100%;
-  aspect-ratio: 16/9;
-}
-
 .videoInfoRow {
   grid-row: 2;
   min-height: 480px;

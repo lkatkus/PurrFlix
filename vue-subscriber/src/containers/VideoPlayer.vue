@@ -64,6 +64,7 @@ export default {
     const videoWorker = new NatsWorker();
     const videoRef = ref<HTMLVideoElement | null>(null);
     const sourceRef = ref<any>(null);
+    const loadingRef = ref<any>(false);
     const currentInitBuffer = ref<any>(new ArrayBuffer(0));
     const userStore = useUserStore();
     const { getAccessToken: accessToken, getServerUrl: serverUrl } =
@@ -83,6 +84,8 @@ export default {
         currentInitBuffer.value,
         initBuffer
       );
+
+      loadingRef.value = false;
 
       if (!isNewInit) {
         if (!getMediaSource().isTypeSupported(MIME_CODEC)) {
@@ -145,6 +148,8 @@ export default {
     };
 
     watch(activeStream, (newValue: any, oldValue: any) => {
+      loadingRef.value = true;
+
       if (oldValue) {
         const message = {
           type: "unsubscribe",
@@ -170,27 +175,71 @@ export default {
 
     return {
       videoRef,
+      loadingRef,
     };
   },
 };
 </script>
 
 <template>
-  <!-- @vue-ignore -->
-  <video
-    ref="videoRef"
-    class="videoPlayer"
-    playsinline
-    autoplay
-    v-bind:muted.attr="''"
-    controls
-  ></video>
+  <div class="videoPlayerWrapper">
+    <!-- @vue-ignore -->
+    <video
+      ref="videoRef"
+      class="videoPlayer"
+      playsinline
+      autoplay
+      v-bind:muted.attr="''"
+      controls
+    ></video>
+    <div
+      id="videoPlayerLoader"
+      class="videoPlayerLoaderContainer"
+      v-bind:class="{ hidden: !loadingRef }"
+    >
+      <h3>LOADING...</h3>
+    </div>
+  </div>
 </template>
 
 <style scoped>
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 0.8;
+  }
+}
+
+.videoPlayerWrapper {
+  height: 100%;
+  aspect-ratio: 16/9;
+  position: relative;
+}
+
 .videoPlayer {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.videoPlayerLoaderContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  background-color: black;
+  animation: fadeIn 300ms forwards;
+}
+
+.hidden {
+  display: none;
 }
 </style>

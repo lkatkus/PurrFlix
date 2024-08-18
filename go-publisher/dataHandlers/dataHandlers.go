@@ -114,7 +114,7 @@ func ReadFolder(dirPath string, onFileRead func(DataMessage), root bool) {
 				metadataData = DataMetadata{
 					Name:        dirPath,
 					Description: "Some relevant description",
-					Duration:    9000,
+					Duration:    jsonData.Duration,
 					Thumbnail:   jsonData.Thumbnail,
 				}
 			}

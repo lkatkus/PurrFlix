@@ -52,6 +52,8 @@ fs.readdir(assetsRootDir, (err, dirs) => {
           -map 0:v -c:v libx264 -x264opts keyint=60 -b:v 1500k -f dash -seg_duration ${segmentDuration} -an ${outputDir}/video.mpd \
           -map 0:v -ss 00:00:01 -vframes 1 -vf scale=${thumbnailWidth}:${thumbnailHeight} -f image2pipe -vcodec png -`;
 
+        const ffprobeDurationCommand = `ffprobe -i ${inputFilePath} -show_entries format=duration -v quiet -of csv="p=0"`;
+
         exec(
           ffmpegCommand,
           { encoding: "buffer", maxBuffer: 1024 * 1024 * 10 },
@@ -65,24 +67,34 @@ fs.readdir(assetsRootDir, (err, dirs) => {
               "base64"
             )}`;
 
-            const jsonObject = {
-              thumbnail: base64Image,
-            };
-
-            fs.writeFile(
-              `${outputDir}/metadata.json`,
-              JSON.stringify(jsonObject, null, 2),
-              (err) => {
-                if (err) {
-                  console.error(`Error writing to JSON file: ${err.message}`);
-                  return;
-                }
+            exec(ffprobeDurationCommand, (error, stdout, stderr) => {
+              if (error) {
+                console.error(`Error getting duration: ${error.message}`);
+                return;
               }
-            );
 
-            console.log(
-              `MPEG-DASH segments created and screenshot captured for ${inputFilePath}`
-            );
+              const durationInSeconds = parseInt(stdout.trim());
+
+              const jsonObject = {
+                thumbnail: base64Image,
+                duration: durationInSeconds,
+              };
+
+              fs.writeFile(
+                `${outputDir}/metadata.json`,
+                JSON.stringify(jsonObject, null, 2),
+                (err) => {
+                  if (err) {
+                    console.error(`Error writing to JSON file: ${err.message}`);
+                    return;
+                  }
+                }
+              );
+
+              console.log(
+                `MPEG-DASH segments created and screenshot captured for ${inputFilePath}`
+              );
+            });
           }
         );
       });

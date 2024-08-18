@@ -14,12 +14,14 @@ export default {
     const feedWorker = new NatsWorker({ name: "VideoFeedWorker" });
     const liveStreams = ref<any[]>([]);
     const streamStore = useStreamStore();
+    const { getActiveStream: activeStream } = storeToRefs(streamStore);
     const userStore = useUserStore();
     const { getAccessToken: accessToken, getServerUrl: serverUrl } =
       storeToRefs(userStore);
 
     const handleOnClickItem = (stream: any) => {
       streamStore.setActiveStream(stream);
+      streamStore.setActiveStreamMetadata(stream);
       window.scroll({ top: 0 });
     };
 
@@ -36,6 +38,13 @@ export default {
         liveStreams.value.push(streamMetadata);
       } else {
         liveStreams.value[existingLiveStreamIndex] = streamMetadata;
+      }
+
+      if (
+        activeStream.value &&
+        activeStream.value.subjectName === streamMetadata.subjectName
+      ) {
+        streamStore.setActiveStreamMetadata(streamMetadata);
       }
     };
 

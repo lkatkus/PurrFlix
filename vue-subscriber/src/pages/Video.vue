@@ -12,7 +12,10 @@ export default {
   },
   setup() {
     const streamStore = useStreamStore();
-    const { getActiveStream: activeStream } = storeToRefs(streamStore);
+    const {
+      getActiveStream: activeStream,
+      getActiveStreamMetadata: activeStreamMetadata,
+    } = storeToRefs(streamStore);
     const isObserving = ref(false);
     const currentActiveStream = ref<any>(null);
 
@@ -58,6 +61,7 @@ export default {
 
     return {
       currentActiveStream,
+      activeStreamMetadata,
     };
   },
 };
@@ -75,8 +79,8 @@ export default {
           <div class="videoPlayerContainer">
             <video-player></video-player>
             <div v-if="currentActiveStream" class="videoDescriptionContainer">
-              <h3>{{ currentActiveStream.name }}</h3>
-              <div>{{ currentActiveStream.subjectName }}</div>
+              <h3>{{ activeStreamMetadata.name }}</h3>
+              <div>{{ activeStreamMetadata.subjectName }}</div>
             </div>
           </div>
         </div>
@@ -85,9 +89,9 @@ export default {
       <div class="videoInfoRow">
         <div class="videoInfoRowContent">
           <div v-if="currentActiveStream" class="videoInfoContainer">
-            <h3>{{ currentActiveStream.name }}</h3>
-            <div>{{ currentActiveStream.subjectName }}</div>
-            <div>{{ currentActiveStream.description }}</div>
+            <h3>{{ activeStreamMetadata.name }}</h3>
+            <div>{{ activeStreamMetadata.subjectName }}</div>
+            <div>{{ activeStreamMetadata.description }}</div>
           </div>
 
           <div

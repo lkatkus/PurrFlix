@@ -40,15 +40,9 @@ export default {
       if (!isSameInit) {
         currentInitBuffer.value = initBuffer;
 
-        const sourceBuffer = sourceRef.value;
+        const initialArrayBuffer = concatArrayBuffers(initBuffer, dataBuffer);
 
-        if (sourceBuffer) {
-          const initialArrayBuffer = concatArrayBuffers(initBuffer, dataBuffer);
-
-          sourceBuffer.appendBuffer(initialArrayBuffer);
-        }
-
-        loadingRef.value = false;
+        await handleCreateMediaSource(initialArrayBuffer);
       } else {
         const sourceBuffer = sourceRef.value;
 
@@ -56,6 +50,8 @@ export default {
           sourceBuffer.appendBuffer(dataBuffer);
         }
       }
+
+      loadingRef.value = false;
     };
 
     videoWorker.onmessage = function (e) {
@@ -85,10 +81,14 @@ export default {
       }
     };
 
-    const handleCreateMediaSource = async () => {
+    const handleCreateMediaSource = async (data?: any) => {
       if (videoRef.value) {
         const mediaSource = await initMediaSource((sb: SourceBuffer) => {
           sourceRef.value = sb;
+
+          if (data) {
+            sb.appendBuffer(data);
+          }
         });
 
         videoRef.value.src = URL.createObjectURL(mediaSource);

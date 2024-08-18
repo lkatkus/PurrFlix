@@ -5,6 +5,7 @@ import { useUserStore } from "../stores/userStore";
 import { useStreamStore } from "../stores/streamStore";
 import { getObjectFromBuffer } from "../utils/dataUtils.ts";
 import NatsWorker from "../workers/natsWorker?worker";
+import { getParsedDuration } from "../utils/videoUtils.ts";
 
 const LIVE_STREAMS = "laimonas.purrflix-publisher.live";
 
@@ -19,6 +20,7 @@ export default {
 
     const handleOnClickItem = (stream: any) => {
       streamStore.setActiveStream(stream);
+      window.scroll({ top: 0 });
     };
 
     const handleOnMessage = async (messages: any[]) => {
@@ -74,6 +76,7 @@ export default {
     return {
       liveStreams,
       handleOnClickItem,
+      handleParseDuration: getParsedDuration,
     };
   },
 };
@@ -94,14 +97,12 @@ export default {
       >
         <div class="listItemThumbnail">
           <img v-bind:src="stream.thumbnail" />
-          <div>{{ stream.duration }}</div>
+          <div>{{ handleParseDuration(stream.duration) }}</div>
         </div>
         <div class="listItemDescription">
-          <h4>{{ stream.subjectName }}</h4>
-          <div>
-            <div>{{ stream.name }}</div>
-            <div>{{ stream.description }}</div>
-          </div>
+          <h4>{{ stream.name }}</h4>
+          <div>{{ stream.subjectName }}</div>
+          <div>{{ stream.description }}</div>
         </div>
       </div>
     </div>
@@ -153,11 +154,24 @@ export default {
   color: white;
   position: absolute;
   bottom: 8px;
-  right: 16px;
+  right: 8px;
+  font-weight: 600;
 }
 
 .listItemDescription {
-  word-break: break-all;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.listItemDescription > * {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.listItemDescription > *:not(:first-child) {
+  margin-top: 4px;
 }
 
 @media (min-width: 768px) {

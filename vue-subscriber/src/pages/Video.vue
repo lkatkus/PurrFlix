@@ -77,8 +77,8 @@ export default {
               <video-player></video-player>
             </div>
             <div v-if="currentActiveStream" class="videoDescriptionContainer">
-              <h3>{{ currentActiveStream.subjectName }}</h3>
-              <div>{{ currentActiveStream.name }}</div>
+              <h3>{{ currentActiveStream.name }}</h3>
+              <div>{{ currentActiveStream.subjectName }}</div>
             </div>
           </div>
         </div>
@@ -87,7 +87,8 @@ export default {
       <div class="videoInfoRow">
         <div class="videoInfoRowContent">
           <div v-if="currentActiveStream" class="videoInfoContainer">
-            <h3>{{ currentActiveStream.subjectName }}</h3>
+            <h3>{{ currentActiveStream.name }}</h3>
+            <div>{{ currentActiveStream.subjectName }}</div>
             <div>{{ currentActiveStream.description }}</div>
           </div>
 
@@ -184,6 +185,12 @@ export default {
 
 .videoInfoContainer {
   padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.videoInfoContainer > *:not(:first-child) {
+  margin-top: 8px;
 }
 
 .streamListContainer {

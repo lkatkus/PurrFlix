@@ -58,3 +58,12 @@ export const initMediaSource = async (onReady: (sb: SourceBuffer) => void) => {
 
   return mediaSource;
 };
+
+export const getParsedDuration = (duration: number) => {
+  const minutes = Math.floor(duration / 60);
+  const seconds = minutes > 0 ? duration - minutes * 60 : duration;
+  const parsedSeconds =
+    seconds.toString().length === 1 ? `0${seconds}` : seconds;
+
+  return `${minutes}:${parsedSeconds}`;
+};

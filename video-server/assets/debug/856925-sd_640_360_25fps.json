@@ -1,4 +1,4 @@
 {
-  "name": "name",
-  "description": "description"
+  "name": "Debug timer",
+  "description": "Debug video to test syncing of chunks midstream."
 }

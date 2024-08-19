@@ -112,8 +112,8 @@ func ReadFolder(dirPath string, onFileRead func(DataMessage), root bool) {
 				json.Unmarshal(data, &jsonData)
 
 				metadataData = DataMetadata{
-					Name:        dirPath,
-					Description: "Some relevant description",
+					Name:        jsonData.Name,
+					Description: jsonData.Description,
 					Duration:    jsonData.Duration,
 					Thumbnail:   jsonData.Thumbnail,
 				}

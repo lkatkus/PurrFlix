@@ -109,8 +109,12 @@ export default {
           <div>{{ handleParseDuration(stream.duration) }}</div>
         </div>
         <div class="listItemDescription">
-          <h4>{{ stream.name }}</h4>
-          <div>{{ stream.subjectName }}</div>
+          <div>
+            <h4>{{ stream.name }}</h4>
+            <h5>
+              In <b>{{ stream.subjectName }}</b>
+            </h5>
+          </div>
           <div>{{ stream.description }}</div>
         </div>
       </div>
@@ -173,14 +177,16 @@ export default {
   flex-direction: column;
 }
 
-.listItemDescription > * {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+.listItemDescription > *:first-child {
+  margin-bottom: 4px;
 }
 
-.listItemDescription > *:not(:first-child) {
-  margin-top: 4px;
+.listItemDescription > * {
+  overflow: hidden;
+  display: -webkit-box;
+  line-clamp: 3;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
 }
 
 @media (min-width: 768px) {

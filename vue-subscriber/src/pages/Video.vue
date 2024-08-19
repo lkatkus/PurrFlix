@@ -79,8 +79,10 @@ export default {
           <div class="videoPlayerContainer">
             <video-player></video-player>
             <div v-if="currentActiveStream" class="videoDescriptionContainer">
-              <h3>{{ activeStreamMetadata.name }}</h3>
-              <div>{{ activeStreamMetadata.subjectName }}</div>
+              <h4>{{ activeStreamMetadata.name }}</h4>
+              <h5>
+                In <b>{{ activeStreamMetadata.subjectName }}</b>
+              </h5>
             </div>
           </div>
         </div>
@@ -89,8 +91,12 @@ export default {
       <div class="videoInfoRow">
         <div class="videoInfoRowContent">
           <div v-if="currentActiveStream" class="videoInfoContainer">
-            <h3>{{ activeStreamMetadata.name }}</h3>
-            <div>{{ activeStreamMetadata.subjectName }}</div>
+            <div>
+              <h4>{{ activeStreamMetadata.name }}</h4>
+              <h5>
+                In <b>{{ activeStreamMetadata.subjectName }}</b>
+              </h5>
+            </div>
             <div>{{ activeStreamMetadata.description }}</div>
           </div>
 
@@ -208,16 +214,12 @@ export default {
 @media (min-width: 768px) {
   .videoInfoRowContent {
     display: grid;
-    grid-template-columns: 4fr 3fr;
+    grid-template-columns: 1fr 1fr;
     max-width: var(--page-content-width);
   }
 }
 
 @media (min-width: 1024px) {
-  .videoInfoRowContent {
-    grid-template-columns: 5fr 4fr;
-  }
-
   .videoPlayerRow {
     height: 560px;
   }

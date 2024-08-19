@@ -44,10 +44,14 @@ export default {
       },
       {
         threshold: 0,
-        rootMargin: "-180px", // -200px does not work on iOS for some reason
+        rootMargin: "-160px",
         root: document.querySelector("#mainContentContainer"),
       }
     );
+
+    const handleScrollToTop = () => {
+      window.scroll({ top: 0 });
+    };
 
     watch(activeStream, (newValue: any) => {
       currentActiveStream.value = newValue;
@@ -62,6 +66,7 @@ export default {
     return {
       currentActiveStream,
       activeStreamMetadata,
+      handleScrollToTop,
     };
   },
 };
@@ -79,10 +84,15 @@ export default {
           <div class="videoPlayerContainer">
             <video-player></video-player>
             <div v-if="currentActiveStream" class="videoDescriptionContainer">
-              <h4>{{ activeStreamMetadata.name }}</h4>
-              <h5>
-                In <b>{{ activeStreamMetadata.subjectName }}</b>
-              </h5>
+              <div>
+                <h4>{{ activeStreamMetadata.name }}</h4>
+                <h5>
+                  In <b>{{ activeStreamMetadata.subjectName }}</b>
+                </h5>
+              </div>
+              <div class="buttonContainer" v-on:click="handleScrollToTop">
+                <button>Scroll to top</button>
+              </div>
             </div>
           </div>
         </div>
@@ -138,7 +148,7 @@ export default {
 .sticky {
   z-index: var(--z-index-top);
   position: fixed;
-  height: 140px !important;
+  height: 100px !important;
   max-width: unset;
   background-color: black;
 }
@@ -168,9 +178,20 @@ export default {
 }
 
 .sticky > .videoPlayerContainer > .videoDescriptionContainer {
+  width: 100%;
   color: white;
-  display: unset;
-  padding: 16px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.sticky
+  > .videoPlayerContainer
+  > .videoDescriptionContainer
+  > .buttonContainer {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .videoInfoRow {
